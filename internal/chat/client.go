@@ -10,8 +10,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/OWNER/gchat-export/internal/daterange"
-	"github.com/OWNER/gchat-export/internal/model"
+	"github.com/pokhiii/gchat-export/internal/daterange"
+	"github.com/pokhiii/gchat-export/internal/model"
 	chatapi "google.golang.org/api/chat/v1"
 	"google.golang.org/api/googleapi"
 	"google.golang.org/api/option"

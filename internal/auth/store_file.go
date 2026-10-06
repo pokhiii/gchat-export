@@ -7,7 +7,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/OWNER/gchat-export/internal/fsutil"
+	"github.com/pokhiii/gchat-export/internal/fsutil"
 )
 
 const credentialFile = "credential.json" // #nosec G101 -- a file name, not a credential

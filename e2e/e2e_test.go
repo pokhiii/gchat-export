@@ -20,7 +20,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/OWNER/gchat-export/internal/cli"
+	"github.com/pokhiii/gchat-export/internal/cli"
 )
 
 func TestExportAgainstRealAPI(t *testing.T) {

@@ -10,10 +10,10 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/OWNER/gchat-export/internal/auth"
-	"github.com/OWNER/gchat-export/internal/chat"
-	"github.com/OWNER/gchat-export/internal/config"
-	"github.com/OWNER/gchat-export/internal/ratelimit"
+	"github.com/pokhiii/gchat-export/internal/auth"
+	"github.com/pokhiii/gchat-export/internal/chat"
+	"github.com/pokhiii/gchat-export/internal/config"
+	"github.com/pokhiii/gchat-export/internal/ratelimit"
 	"github.com/spf13/cobra"
 	"golang.org/x/oauth2"
 )

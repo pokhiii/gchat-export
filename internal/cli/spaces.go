@@ -6,7 +6,7 @@ import (
 	"strings"
 	"text/tabwriter"
 
-	"github.com/OWNER/gchat-export/internal/model"
+	"github.com/pokhiii/gchat-export/internal/model"
 	"github.com/spf13/cobra"
 )
 

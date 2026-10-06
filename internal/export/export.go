@@ -16,11 +16,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/OWNER/gchat-export/internal/attach"
-	"github.com/OWNER/gchat-export/internal/daterange"
-	"github.com/OWNER/gchat-export/internal/fsutil"
-	"github.com/OWNER/gchat-export/internal/model"
-	"github.com/OWNER/gchat-export/internal/render"
+	"github.com/pokhiii/gchat-export/internal/attach"
+	"github.com/pokhiii/gchat-export/internal/daterange"
+	"github.com/pokhiii/gchat-export/internal/fsutil"
+	"github.com/pokhiii/gchat-export/internal/model"
+	"github.com/pokhiii/gchat-export/internal/render"
 )
 
 const (

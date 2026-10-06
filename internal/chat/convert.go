@@ -4,7 +4,7 @@ import (
 	"net/url"
 	"time"
 
-	"github.com/OWNER/gchat-export/internal/model"
+	"github.com/pokhiii/gchat-export/internal/model"
 	chatapi "google.golang.org/api/chat/v1"
 )
 

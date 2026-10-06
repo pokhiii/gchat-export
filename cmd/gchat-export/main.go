@@ -5,7 +5,7 @@ import (
 	"os"
 	"os/signal"
 
-	"github.com/OWNER/gchat-export/internal/cli"
+	"github.com/pokhiii/gchat-export/internal/cli"
 )
 
 var version = "dev"

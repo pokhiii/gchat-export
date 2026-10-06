@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/OWNER/gchat-export/internal/model"
+	"github.com/pokhiii/gchat-export/internal/model"
 	"golang.org/x/oauth2"
 	"google.golang.org/api/googleapi"
 )

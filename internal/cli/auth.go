@@ -8,8 +8,8 @@ import (
 	"slices"
 	"time"
 
-	"github.com/OWNER/gchat-export/internal/auth"
-	"github.com/OWNER/gchat-export/internal/fsutil"
+	"github.com/pokhiii/gchat-export/internal/auth"
+	"github.com/pokhiii/gchat-export/internal/fsutil"
 	"github.com/spf13/cobra"
 )
 

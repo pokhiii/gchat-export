@@ -9,9 +9,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/OWNER/gchat-export/internal/chat"
-	"github.com/OWNER/gchat-export/internal/daterange"
-	"github.com/OWNER/gchat-export/internal/export"
+	"github.com/pokhiii/gchat-export/internal/chat"
+	"github.com/pokhiii/gchat-export/internal/daterange"
+	"github.com/pokhiii/gchat-export/internal/export"
 	"github.com/spf13/cobra"
 )
 

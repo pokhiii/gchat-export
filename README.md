@@ -15,27 +15,62 @@ read-only, the token is stored in your OS keychain, and there's no telemetry.
 
 ## Install
 
-Download a release archive for your platform from the Releases page, then
-verify it:
+Download one file from the
+[latest release](https://github.com/pokhiii/gchat-export/releases/latest).
+No Go toolchain or clone is needed.
+
+| Your computer | File |
+|---|---|
+| Mac with Apple silicon (M1 or later) | `gchat-export_darwin_arm64` |
+| Mac with Intel | `gchat-export_darwin_amd64` |
+| Windows | `gchat-export_windows_amd64.exe` |
+| Linux | `gchat-export_linux_amd64` (or `_arm64`) |
+
+**macOS / Linux:**
 
 ```bash
-# 1. Verify the checksums file was signed by this repository's release workflow
-cosign verify-blob checksums.txt \
-  --signature checksums.txt.sig --certificate checksums.txt.pem \
-  --certificate-identity-regexp 'https://github.com/OWNER/gchat-export/.github/workflows/release.yml@refs/tags/v.*' \
-  --certificate-oidc-issuer https://token.actions.githubusercontent.com
-
-# 2. Verify your archive against it
-shasum -a 256 --ignore-missing -c checksums.txt
-
-# 3. Optional: verify SLSA build provenance
-gh attestation verify gchat-export_*_darwin_arm64.tar.gz --repo OWNER/gchat-export
+sudo mkdir -p /usr/local/bin
+sudo mv ~/Downloads/gchat-export_darwin_arm64 /usr/local/bin/gchat-export
+sudo chmod +x /usr/local/bin/gchat-export
+sudo xattr -d com.apple.quarantine /usr/local/bin/gchat-export   # macOS only
+gchat-export --version
 ```
 
-Or build from source (Go 1.27+):
+The `xattr` line is needed because the binary isn't signed with an Apple
+developer certificate. Without it, macOS refuses to open the file
+downloaded from the internet. Use any folder on your `PATH` in place of
+`/usr/local/bin`.
+
+**Windows:** rename the file to `gchat-export.exe` and put it in a folder on
+your `PATH`. On first run, SmartScreen may warn about an unrecognized app;
+choose **More info → Run anyway**.
+
+Next, do the one-time Google setup in [docs/setup.md](docs/setup.md), then
+follow the Quick start below.
+
+### Verifying a download (optional)
+
+Each release includes `checksums.txt`, signed with Sigstore cosign by this
+repository's release workflow, and build provenance attestations:
 
 ```bash
-go install github.com/OWNER/gchat-export/cmd/gchat-export@latest
+cosign verify-blob checksums.txt \
+  --signature checksums.txt.sig --certificate checksums.txt.pem \
+  --certificate-identity-regexp 'https://github.com/pokhiii/gchat-export/.github/workflows/release.yml@refs/tags/v.*' \
+  --certificate-oidc-issuer https://token.actions.githubusercontent.com
+shasum -a 256 --ignore-missing -c checksums.txt
+gh attestation verify gchat-export_darwin_arm64 --repo pokhiii/gchat-export
+```
+
+Release archives (`.tar.gz` / `.zip`) with the license and docs are also
+attached.
+
+### Build from source
+
+With Go 1.27 or later:
+
+```bash
+go install github.com/pokhiii/gchat-export/cmd/gchat-export@latest
 ```
 
 ## Quick start

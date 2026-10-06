@@ -6,9 +6,9 @@ import (
 	"strings"
 	"unicode"
 
-	"github.com/OWNER/gchat-export/internal/auth"
-	"github.com/OWNER/gchat-export/internal/chat"
-	"github.com/OWNER/gchat-export/internal/export"
+	"github.com/pokhiii/gchat-export/internal/auth"
+	"github.com/pokhiii/gchat-export/internal/chat"
+	"github.com/pokhiii/gchat-export/internal/export"
 )
 
 // userMessage turns an error into an actionable, redacted message.

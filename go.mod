@@ -1,4 +1,4 @@
-module github.com/OWNER/gchat-export
+module github.com/pokhiii/gchat-export
 
 go 1.27.1
 

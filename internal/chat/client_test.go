@@ -10,8 +10,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/OWNER/gchat-export/internal/daterange"
-	"github.com/OWNER/gchat-export/internal/model"
+	"github.com/pokhiii/gchat-export/internal/daterange"
+	"github.com/pokhiii/gchat-export/internal/model"
 )
 
 const page1 = `{"messages":[

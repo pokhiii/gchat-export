@@ -14,9 +14,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/OWNER/gchat-export/internal/daterange"
-	"github.com/OWNER/gchat-export/internal/model"
-	"github.com/OWNER/gchat-export/internal/render"
+	"github.com/pokhiii/gchat-export/internal/daterange"
+	"github.com/pokhiii/gchat-export/internal/model"
+	"github.com/pokhiii/gchat-export/internal/render"
 )
 
 const secretText = "TOP-SECRET-MESSAGE-TEXT"

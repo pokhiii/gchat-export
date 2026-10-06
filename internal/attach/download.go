@@ -13,8 +13,8 @@ import (
 	"path"
 	"path/filepath"
 
-	"github.com/OWNER/gchat-export/internal/fsutil"
-	"github.com/OWNER/gchat-export/internal/model"
+	"github.com/pokhiii/gchat-export/internal/fsutil"
+	"github.com/pokhiii/gchat-export/internal/model"
 )
 
 const dirName = "attachments"

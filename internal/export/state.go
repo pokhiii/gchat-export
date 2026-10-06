@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/OWNER/gchat-export/internal/fsutil"
+	"github.com/pokhiii/gchat-export/internal/fsutil"
 )
 
 const stateFile = ".state.json"

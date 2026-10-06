@@ -8,7 +8,7 @@ import (
 	"io"
 	"time"
 
-	"github.com/OWNER/gchat-export/internal/model"
+	"github.com/pokhiii/gchat-export/internal/model"
 )
 
 type record struct {

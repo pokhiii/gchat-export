@@ -12,7 +12,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/OWNER/gchat-export/internal/model"
+	"github.com/pokhiii/gchat-export/internal/model"
 )
 
 type fakeFetch struct {

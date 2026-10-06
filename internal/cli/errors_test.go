@@ -6,10 +6,10 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/OWNER/gchat-export/internal/auth"
-	"github.com/OWNER/gchat-export/internal/chat"
-	"github.com/OWNER/gchat-export/internal/export"
-	"github.com/OWNER/gchat-export/internal/model"
+	"github.com/pokhiii/gchat-export/internal/auth"
+	"github.com/pokhiii/gchat-export/internal/chat"
+	"github.com/pokhiii/gchat-export/internal/export"
+	"github.com/pokhiii/gchat-export/internal/model"
 )
 
 func TestUserMessage(t *testing.T) {

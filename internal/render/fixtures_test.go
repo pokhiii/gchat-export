@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/OWNER/gchat-export/internal/model"
+	"github.com/pokhiii/gchat-export/internal/model"
 )
 
 var update = flag.Bool("update", false, "rewrite golden files")

@@ -9,7 +9,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/OWNER/gchat-export/internal/fsutil"
+	"github.com/pokhiii/gchat-export/internal/fsutil"
 	"github.com/zalando/go-keyring"
 	"golang.org/x/oauth2"
 )

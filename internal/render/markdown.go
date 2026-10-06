@@ -7,8 +7,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/OWNER/gchat-export/internal/daterange"
-	"github.com/OWNER/gchat-export/internal/model"
+	"github.com/pokhiii/gchat-export/internal/daterange"
+	"github.com/pokhiii/gchat-export/internal/model"
 )
 
 // Header describes the transcript. Title is precomputed by the caller so
