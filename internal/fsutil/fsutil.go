@@ -76,14 +76,15 @@ func CreateNew(root, rel string) (*os.File, error) {
 	return openNoFollow(full, os.O_WRONLY|os.O_CREATE|os.O_EXCL)
 }
 
-// OpenAppend opens root/rel for appending, creating it with mode 0600 if
-// needed, refusing symlinks and paths outside root.
-func OpenAppend(root, rel string) (*os.File, error) {
+// OpenWrite opens root/rel for positional writing (no O_APPEND), creating it
+// with mode 0600 if needed, refusing symlinks and paths outside root. Callers
+// Truncate and Seek before writing.
+func OpenWrite(root, rel string) (*os.File, error) {
 	full, err := resolve(root, rel)
 	if err != nil {
 		return nil, err
 	}
-	return openNoFollow(full, os.O_WRONLY|os.O_APPEND|os.O_CREATE)
+	return openNoFollow(full, os.O_WRONLY|os.O_CREATE)
 }
 
 // WriteFileAtomic replaces root/rel with data via a 0600 temp file in the same

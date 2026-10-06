@@ -60,6 +60,14 @@ func (a *app) runExport(cmd *cobra.Command, f exportFlags) error {
 		return err
 	}
 	opt.Space, opt.Scopes, opt.Version = space, cred.Scopes, a.version
+	if f.resume && f.until == "" {
+		// The first run's end was "now" back then; reuse it, not today's now.
+		to, err := export.FindResumeTo(opt.OutRoot, space, opt.Range.From)
+		if err != nil {
+			return err
+		}
+		opt.Range.To = to
+	}
 	res, err := export.Run(ctx, c, opt, a.log)
 	if err != nil {
 		if res.Dir != "" && !errors.Is(err, export.ErrOutputExists) {

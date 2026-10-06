@@ -36,10 +36,12 @@ func New(ctx context.Context, hc *http.Client, endpoint string) (*Client, error)
 	return &Client{svc: svc}, nil
 }
 
-// Filter is the messages.list filter for r: createTime in [From, To).
+// Filter is the messages.list filter for r: create_time in [From, To). The API
+// documents only > and <, so the inclusive lower bound is expressed as
+// "> From - 1µs" (Chat timestamps have microsecond precision).
 func Filter(r daterange.Range) string {
-	return fmt.Sprintf(`createTime >= %q AND createTime < %q`,
-		r.From.UTC().Format(time.RFC3339Nano), r.To.UTC().Format(time.RFC3339Nano))
+	from := r.From.Add(-time.Microsecond).UTC().Format("2006-01-02T15:04:05.000000Z07:00")
+	return fmt.Sprintf(`create_time > %q AND create_time < %q`, from, r.To.UTC().Format(time.RFC3339Nano))
 }
 
 // ListSpaces returns every space the user is a member of.

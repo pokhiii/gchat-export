@@ -95,7 +95,9 @@ func testRange() daterange.Range {
 }
 
 func TestFilterString(t *testing.T) {
-	want := `createTime >= "2026-09-01T00:00:00Z" AND createTime < "2026-10-01T00:00:00Z"`
+	// Only `create_time` with > and < is documented; > (From - 1µs) is an
+	// inclusive lower bound at the API's microsecond precision.
+	want := `create_time > "2026-08-31T23:59:59.999999Z" AND create_time < "2026-10-01T00:00:00Z"`
 	if got := Filter(testRange()); got != want {
 		t.Fatalf("got  %s\nwant %s", got, want)
 	}

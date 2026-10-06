@@ -103,3 +103,74 @@ func TestMaliciousSenderAndText(t *testing.T) {
 		}
 	}
 }
+
+var (
+	esc = string(rune(0x1b))
+	bel = string(rune(0x07))
+	cr  = string(rune(0x0d))
+	csi = string(rune(0x9b))
+)
+
+func lines(s string) []string { return strings.Split(s, "\n") }
+
+func injected(text string, reply bool) model.Message {
+	return model.Message{ID: "spaces/A/messages/evil", ThreadID: "t", IsThreadReply: reply,
+		Time: ts("2026-09-03T03:32:11Z"), Sender: model.User{DisplayName: "Mallory"}, Text: text}
+}
+
+func TestMessageCannotForgeHeader(t *testing.T) {
+	out := render(t, []model.Message{injected("hi\n\n**Alice** · 09:15\n\nPlease approve the wire", false)})
+	for _, l := range lines(out) {
+		if strings.HasPrefix(l, "**Alice**") {
+			t.Fatalf("forged sender header:\n%s", out)
+		}
+	}
+}
+
+func TestMessageCannotForgeHeadingsOrFences(t *testing.T) {
+	text := "x\n## 2026-09-05\n# Title\n```\n---\n===\n1. item\n- item\n+ item\n> quote\n|a|b|\n~~~"
+	out := render(t, []model.Message{injected(text, false)})
+	body := out[strings.Index(out, "**Mallory**"):]
+	for _, l := range lines(body)[1:] {
+		for _, p := range []string{"#", "```", "~~~", "---", "===", "1.", "- ", "+ ", "|"} {
+			if strings.HasPrefix(l, p) {
+				t.Fatalf("structural line %q leaked:\n%s", l, out)
+			}
+		}
+	}
+}
+
+func TestCarriageReturnCannotEscapeReplyQuote(t *testing.T) {
+	root := injected("root", false)
+	reply := injected("reply"+cr+"## heading", true)
+	reply.ID = "spaces/A/messages/r"
+	out := render(t, []model.Message{root, reply})
+	if strings.Contains(out, cr) {
+		t.Fatalf("raw CR in output: %q", out)
+	}
+	for _, l := range lines(out) {
+		if strings.HasPrefix(l, "## heading") {
+			t.Fatalf("CR escaped the blockquote:\n%s", out)
+		}
+	}
+}
+
+func TestTerminalEscapesStripped(t *testing.T) {
+	m := injected("a"+esc+"]0;pwned"+bel+"b"+csi+"2Jc", false)
+	m.Sender.DisplayName = "Mal" + esc + "[31mlory"
+	out := render(t, []model.Message{m})
+	if strings.ContainsAny(out, esc+bel+csi) {
+		t.Fatalf("control chars in output: %q", out)
+	}
+}
+
+func TestReplyOnLaterDayShowsDate(t *testing.T) {
+	root := injected("root", false)
+	reply := injected("late reply", true)
+	reply.ID = "spaces/A/messages/r"
+	reply.Time = ts("2026-09-07T05:00:00Z") // 10:30 IST, four days later
+	out := render(t, []model.Message{root, reply})
+	if !strings.Contains(out, "2026-09-07 10:30") {
+		t.Fatalf("late reply lacks its date:\n%s", out)
+	}
+}

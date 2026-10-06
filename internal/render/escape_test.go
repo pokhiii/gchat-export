@@ -18,8 +18,13 @@ func TestEscapeText(t *testing.T) {
 	if got := escapeText("a & b"); got != "a &amp; b" {
 		t.Fatalf("ampersand: %q", got)
 	}
-	if got := escapeText("plain *bold* text"); got != "plain *bold* text" {
+	if got := escapeText("plain words, 42 items"); got != "plain words, 42 items" {
 		t.Fatalf("plain text altered: %q", got)
+	}
+	// Emphasis is escaped on purpose: it is how a forged "**Name** · 09:15"
+	// header would be built.
+	if got := escapeText("*bold*"); got != `\*bold\*` {
+		t.Fatalf("emphasis not escaped: %q", got)
 	}
 }
 

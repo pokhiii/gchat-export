@@ -2,6 +2,7 @@ package fsutil
 
 import (
 	"errors"
+	"io"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -102,37 +103,6 @@ func TestCreateNewRefusesEscape(t *testing.T) {
 	}
 }
 
-func TestOpenAppendRefusesSymlink(t *testing.T) {
-	skipOnWindows(t)
-	root := t.TempDir()
-	target := filepath.Join(t.TempDir(), "target")
-	if err := os.WriteFile(target, []byte("orig"), 0o600); err != nil {
-		t.Fatal(err)
-	}
-	if err := os.Symlink(target, filepath.Join(root, "a")); err != nil {
-		t.Fatal(err)
-	}
-	if f, err := OpenAppend(root, "a"); err == nil {
-		f.Close()
-		t.Fatal("expected error appending through symlink")
-	}
-}
-
-func TestOpenAppendAppends(t *testing.T) {
-	root := t.TempDir()
-	for _, s := range []string{"a", "b"} {
-		f, err := OpenAppend(root, "log")
-		if err != nil {
-			t.Fatal(err)
-		}
-		f.WriteString(s)
-		f.Close()
-	}
-	if b, _ := os.ReadFile(filepath.Join(root, "log")); string(b) != "ab" {
-		t.Fatalf("got %q", b)
-	}
-}
-
 func TestWriteFileAtomicReplaces(t *testing.T) {
 	root := t.TempDir()
 	if err := WriteFileAtomic(root, "f.json", []byte("one")); err != nil {
@@ -214,5 +184,39 @@ func TestContained(t *testing.T) {
 	}
 	if err := Contained(root, root+"-sibling"); !errors.Is(err, ErrEscapesRoot) {
 		t.Fatalf("sibling prefix: err = %v", err)
+	}
+}
+
+// OpenWrite must not use O_APPEND: on Windows O_APPEND drops the write access
+// that Truncate needs, and positioned writes must land where we Seek.
+func TestOpenWriteIsPositional(t *testing.T) {
+	root := t.TempDir()
+	os.WriteFile(filepath.Join(root, "f"), []byte("abcdef"), 0o600)
+	f, err := OpenWrite(root, "f")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := f.Truncate(4); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := f.Seek(2, io.SeekStart); err != nil {
+		t.Fatal(err)
+	}
+	f.WriteString("X")
+	f.Close()
+	if b, _ := os.ReadFile(filepath.Join(root, "f")); string(b) != "abXd" {
+		t.Fatalf("got %q, want %q", b, "abXd")
+	}
+}
+
+func TestOpenWriteRefusesSymlink(t *testing.T) {
+	skipOnWindows(t)
+	root := t.TempDir()
+	target := filepath.Join(t.TempDir(), "t")
+	os.WriteFile(target, []byte("orig"), 0o600)
+	os.Symlink(target, filepath.Join(root, "l"))
+	if f, err := OpenWrite(root, "l"); err == nil {
+		f.Close()
+		t.Fatal("followed symlink")
 	}
 }

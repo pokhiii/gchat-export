@@ -51,7 +51,7 @@ func RenderMarkdown(w io.Writer, h Header, msgs []model.Message) error {
 				prefix = "> "
 			}
 			_, _ = bw.WriteString("\n") // errors surface at Flush
-			writeMessage(bw, m, prefix, i == 0 && m.IsThreadReply, loc)
+			writeMessage(bw, m, prefix, i == 0 && m.IsThreadReply, day, loc)
 		}
 	}
 	return bw.Flush()
@@ -83,13 +83,19 @@ func groupThreads(msgs []model.Message) []*thread {
 	return order
 }
 
-func writeMessage(w *bufio.Writer, m model.Message, prefix string, orphan bool, loc *time.Location) {
+// writeMessage renders one message. day is the heading it appears under; a
+// reply posted on a later day shows its full date.
+func writeMessage(w *bufio.Writer, m model.Message, prefix string, orphan bool, day string, loc *time.Location) {
 	var lines []string
 	head := ""
 	if orphan {
 		head = "↳ reply in thread · "
 	}
-	head += fmt.Sprintf("**%s** · %s", escapeText(m.Sender.DisplayName), m.Time.In(loc).Format("15:04"))
+	stamp := m.Time.In(loc).Format("15:04")
+	if d := m.Time.In(loc).Format("2006-01-02"); d != day {
+		stamp = d + " " + stamp
+	}
+	head += fmt.Sprintf("**%s** · %s", escapeText(m.Sender.DisplayName), stamp)
 	if m.EditedTime != nil {
 		head += " (edited)"
 	}
@@ -98,7 +104,7 @@ func writeMessage(w *bufio.Writer, m model.Message, prefix string, orphan bool, 
 		lines = append(lines, "> _quoting "+escapeText(m.QuotedMessageID)+"_", "")
 	}
 	if m.Text != "" {
-		for _, l := range strings.Split(m.Text, "\n") {
+		for _, l := range splitLines(m.Text) {
 			lines = append(lines, escapeText(l)+"  ")
 		}
 		lines = append(lines, "")

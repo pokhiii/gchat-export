@@ -33,7 +33,9 @@ func userMessage(err error) string {
 		return b.String()
 	case errors.Is(err, export.ErrOutputExists):
 		return termSafe(redact(err.Error())) + ". Use --resume or --force."
-	case errors.Is(err, export.ErrStateMismatch), errors.Is(err, export.ErrNoState):
+	case errors.Is(err, export.ErrNoState):
+		return termSafe(redact(err.Error())) + ". Run without --resume to start a new export (or --force to replace it)."
+	case errors.Is(err, export.ErrStateMismatch):
 		return termSafe(redact(err.Error())) + ". Use --force to start over."
 	}
 	return termSafe(redact(err.Error()))
