@@ -1,9 +1,18 @@
 package main
 
-import "fmt"
+import (
+	"context"
+	"os"
+	"os/signal"
+
+	"github.com/OWNER/gchat-export/internal/cli"
+)
 
 var version = "dev"
 
 func main() {
-	fmt.Println("gchat-export", version)
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
+	code := cli.Execute(ctx, version, os.Stdout, os.Stderr, os.Args[1:])
+	stop()
+	os.Exit(code)
 }

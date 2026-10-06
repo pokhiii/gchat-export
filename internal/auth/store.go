@@ -15,6 +15,9 @@ type Credential struct {
 	Email  string        `json:"email"`
 	Scopes []string      `json:"scopes"`
 	Token  *oauth2.Token `json:"token"`
+	// ClientSecretPath is where the OAuth client JSON was read at login, so
+	// later commands can refresh tokens without repeating --client-secret.
+	ClientSecretPath string `json:"client_secret_path,omitempty"`
 }
 
 // Store persists one Credential.
