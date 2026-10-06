@@ -120,19 +120,22 @@ created `0600` and directories `0700`.
 
 ## Security
 
-See [SECURITY.md](SECURITY.md) for the threat model and for how to report
-vulnerabilities. In short:
+[SECURITY.md](SECURITY.md) describes how the tool is designed to handle
+tokens, exports and untrusted message content, and how to report
+vulnerabilities privately. Those notes are design intentions, not
+guarantees.
 
-- Read-only scopes.
-- PKCE login on loopback.
-- Token kept in the keychain.
-- Nothing sensitive in logs.
-- Attachment names and contents are treated as untrusted.
-- Markdown output is escaped.
-- Releases are signed and reproducible.
+## Disclaimer
 
-**Not covered:** an attacker who already controls your OS account, what
-happens to exported files afterwards, and messages Google no longer returns.
+- This software is provided **"AS IS", without warranty of any kind**, and
+  you use it **at your own risk** (see [LICENSE](LICENSE), sections 7 and 8).
+- You are responsible for making sure you are allowed to export the
+  conversations you export, under your organization's policies, applicable
+  law and Google's terms. You are also responsible for the security,
+  sharing and deletion of exported files.
+- gchat-export is an independent project. It is not affiliated with,
+  endorsed by or sponsored by Google. "Google" and "Google Chat" are
+  trademarks of Google LLC.
 
 ## License
 
