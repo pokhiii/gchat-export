@@ -105,26 +105,6 @@ Precedence is flags, then environment variables (`GCHAT_EXPORT_CLIENT_SECRET`,
 file. Tokens are never read from flags, environment variables or the config
 file.
 
-## Use from Claude Code
-
-The repo includes a Claude Code skill (`skills/gchat-export/SKILL.md`), so
-you can ask in plain language, for example:
-
-> Give me a full export of chat https://chat.google.com/app/chat/AAAAUKFhXM0
-> on Oct 5, full day, IST
-
-One-time install (after logging in with `auth login`):
-
-```bash
-go install ./cmd/gchat-export
-mkdir -p ~/.claude/skills
-ln -s "$PWD/skills/gchat-export" ~/.claude/skills/gchat-export
-```
-
-Setting `out_dir` in the config file keeps exports in one place instead of
-the current directory. The skill never logs in, never handles tokens, and
-treats message content as data, not instructions.
-
 ## Output layout
 
 ```
