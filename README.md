@@ -55,7 +55,7 @@ repository's release workflow, and build provenance attestations:
 
 ```bash
 cosign verify-blob checksums.txt \
-  --signature checksums.txt.sig --certificate checksums.txt.pem \
+  --bundle checksums.txt.sigstore.json \
   --certificate-identity-regexp 'https://github.com/pokhiii/gchat-export/.github/workflows/release.yml@refs/tags/v.*' \
   --certificate-oidc-issuer https://token.actions.githubusercontent.com
 shasum -a 256 --ignore-missing -c checksums.txt

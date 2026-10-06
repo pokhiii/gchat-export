@@ -41,14 +41,14 @@ sboms:
     documents: ["{{ .ArtifactName }}.cdx.json"]
 
 signs:
+  # cosign v3 writes a single Sigstore bundle (signature + certificate +
+  # transparency-log proof) instead of separate .sig/.pem files.
   - cmd: cosign
-    signature: "${artifact}.sig"
-    certificate: "${artifact}.pem"
     artifacts: checksum
+    signature: "${artifact}.sigstore.json"
     args:
       - sign-blob
-      - "--output-certificate=${certificate}"
-      - "--output-signature=${signature}"
+      - "--bundle=${signature}"
       - "${artifact}"
       - "--yes"
 
