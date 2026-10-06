@@ -34,6 +34,7 @@ func TestExportFlagValidation(t *testing.T) {
 		{[]string{"export", "--space", "x", "--since", "2026-09-01", "--tz", "Mars/Base"}, "--tz"},
 		{[]string{"export", "--space", "x", "--since", "2026-09-01", "--max-attachment-size", "lots"}, "--max-attachment-size"},
 		{[]string{"export", "--space", "x", "--since", "2026-09-01", "--resume", "--force"}, "--resume"},
+		{[]string{"export", "--space", "https://evil.example/room/AAA", "--since", "2026-09-01"}, "Unrecognized Google Chat URL"},
 	}
 	for _, c := range cases {
 		code, _, stderr := run(t, c.args...)

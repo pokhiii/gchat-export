@@ -3,6 +3,7 @@ package chat
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -12,6 +13,7 @@ import (
 	"github.com/OWNER/gchat-export/internal/daterange"
 	"github.com/OWNER/gchat-export/internal/model"
 	chatapi "google.golang.org/api/chat/v1"
+	"google.golang.org/api/googleapi"
 	"google.golang.org/api/option"
 )
 
@@ -56,15 +58,18 @@ func (c *Client) ListSpaces(ctx context.Context) ([]model.Space, error) {
 	return out, Classify(err)
 }
 
-// ResolveSpace finds a space by resource name ("spaces/…") or exact display
-// name.
+// ResolveSpace finds a space by Google Chat URL, resource name ("spaces/…"),
+// exact display name, or, if no display name matches, bare space ID.
 func (c *Client) ResolveSpace(ctx context.Context, ref string) (model.Space, error) {
-	if strings.HasPrefix(ref, "spaces/") {
-		s, err := c.svc.Spaces.Get(ref).Context(ctx).Do()
-		if err != nil {
-			return model.Space{}, Classify(err)
+	if looksLikeURL(ref) {
+		name, ok := ParseSpaceRef(ref)
+		if !ok {
+			return model.Space{}, ErrBadChatURL
 		}
-		return convertSpace(s), nil
+		return c.getSpace(ctx, name)
+	}
+	if strings.HasPrefix(ref, "spaces/") {
+		return c.getSpace(ctx, ref)
 	}
 	all, err := c.ListSpaces(ctx)
 	if err != nil {
@@ -78,11 +83,38 @@ func (c *Client) ResolveSpace(ctx context.Context, ref string) (model.Space, err
 	}
 	switch len(matches) {
 	case 0:
+		if bareIDRE.MatchString(ref) {
+			return c.getBareID(ctx, ref)
+		}
 		return model.Space{}, ErrSpaceNotFound
 	case 1:
 		return matches[0], nil
 	}
 	return model.Space{}, &AmbiguousSpaceError{Candidates: matches}
+}
+
+// getBareID tries ref as a space ID after no display name matched. Spaces the
+// user cannot see may answer 400/403 rather than 404, and ref was most likely
+// a mistyped name, so those read as not found; auth and setup errors pass
+// through unchanged.
+func (c *Client) getBareID(ctx context.Context, ref string) (model.Space, error) {
+	s, err := c.getSpace(ctx, "spaces/"+ref)
+	if err == nil {
+		return s, nil
+	}
+	var ge *googleapi.Error
+	if errors.As(err, &ge) && (ge.Code == 400 || ge.Code == 403 || ge.Code == 404) {
+		return model.Space{}, ErrSpaceNotFound
+	}
+	return model.Space{}, err
+}
+
+func (c *Client) getSpace(ctx context.Context, name string) (model.Space, error) {
+	s, err := c.svc.Spaces.Get(name).Context(ctx).Do()
+	if err != nil {
+		return model.Space{}, Classify(err)
+	}
+	return convertSpace(s), nil
 }
 
 // ListMembers maps users/ID to display name for the space's human members.

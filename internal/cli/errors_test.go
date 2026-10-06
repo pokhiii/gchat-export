@@ -25,6 +25,7 @@ func TestUserMessage(t *testing.T) {
 		{fmt.Errorf("x: %w", export.ErrOutputExists), "--resume or --force"},
 		{export.ErrStateMismatch, "--force"},
 		{export.ErrNoState, "--force"},
+		{chat.ErrBadChatURL, "Unrecognized Google Chat URL"},
 		{errors.New("raw ya29.secret"), "raw [REDACTED]"},
 	}
 	for _, c := range cases {

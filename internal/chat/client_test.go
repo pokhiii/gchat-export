@@ -55,6 +55,9 @@ func newFakeAPI(t *testing.T) *fakeAPI {
 	mux.HandleFunc("/v1/spaces/AAA", func(w http.ResponseWriter, r *http.Request) {
 		io.WriteString(w, `{"name":"spaces/AAA","displayName":"Team","spaceType":"SPACE"}`)
 	})
+	mux.HandleFunc("/v1/spaces/AAAAUKFhXM0", func(w http.ResponseWriter, r *http.Request) {
+		io.WriteString(w, `{"name":"spaces/AAAAUKFhXM0","displayName":"From URL","spaceType":"SPACE"}`)
+	})
 	mux.HandleFunc("/v1/spaces/MISSING", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(404)
 		io.WriteString(w, `{"error":{"code":404,"message":"not found","status":"NOT_FOUND"}}`)
@@ -64,7 +67,7 @@ func newFakeAPI(t *testing.T) *fakeAPI {
 			io.WriteString(w, `{"spaces":[{"name":"spaces/AAA","displayName":"Team","spaceType":"SPACE"},{"name":"spaces/BBB","displayName":"Dup","spaceType":"SPACE"}],"nextPageToken":"s2"}`)
 			return
 		}
-		io.WriteString(w, `{"spaces":[{"name":"spaces/CCC","displayName":"Dup","spaceType":"SPACE"},{"name":"spaces/DDD","spaceType":"DIRECT_MESSAGE"}]}`)
+		io.WriteString(w, `{"spaces":[{"name":"spaces/CCC","displayName":"Dup","spaceType":"SPACE"},{"name":"spaces/DDD","spaceType":"DIRECT_MESSAGE"},{"name":"spaces/EEE","displayName":"standup2026","spaceType":"SPACE"}]}`)
 	})
 	mux.HandleFunc("/v1/media/", func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path != "/v1/media/res-1" || r.URL.Query().Get("alt") != "media" {
@@ -197,7 +200,7 @@ func TestListMembers(t *testing.T) {
 
 func TestListSpaces(t *testing.T) {
 	s, err := newClient(t, newFakeAPI(t)).ListSpaces(context.Background())
-	if err != nil || len(s) != 4 || s[3] != (model.Space{Name: "spaces/DDD", Type: model.SpaceTypeDM}) {
+	if err != nil || len(s) != 5 || s[3] != (model.Space{Name: "spaces/DDD", Type: model.SpaceTypeDM}) {
 		t.Fatalf("spaces %+v err %v", s, err)
 	}
 }

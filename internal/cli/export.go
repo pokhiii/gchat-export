@@ -9,6 +9,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/OWNER/gchat-export/internal/chat"
 	"github.com/OWNER/gchat-export/internal/daterange"
 	"github.com/OWNER/gchat-export/internal/export"
 	"github.com/spf13/cobra"
@@ -31,7 +32,7 @@ func newExportCmd(a *app) *cobra.Command {
 		RunE: func(cmd *cobra.Command, _ []string) error { return a.runExport(cmd, f) },
 	}
 	fl := cmd.Flags()
-	fl.StringVar(&f.space, "space", "", "space resource name (spaces/…) or exact display name (required)")
+	fl.StringVar(&f.space, "space", "", "Chat URL, space resource name (spaces/…), exact display name, or space ID (required)")
 	fl.StringVar(&f.since, "since", "", "start, inclusive: YYYY-MM-DD or RFC 3339 (required)")
 	fl.StringVar(&f.until, "until", "", "end, exclusive: YYYY-MM-DD or RFC 3339 (default now)")
 	fl.StringVar(&f.tz, "tz", "", "time zone for dates and display, e.g. Asia/Kolkata (default local)")
@@ -93,6 +94,11 @@ func (a *app) exportOptions(cmd *cobra.Command, f exportFlags) (export.Options, 
 		return opt, errors.New("--since is required")
 	case f.resume && f.force:
 		return opt, errors.New("--resume and --force cannot be used together")
+	}
+	if strings.HasPrefix(f.space, "http://") || strings.HasPrefix(f.space, "https://") {
+		if _, ok := chat.ParseSpaceRef(f.space); !ok {
+			return opt, chat.ErrBadChatURL
+		}
 	}
 	tz := f.tz
 	if tz == "" {

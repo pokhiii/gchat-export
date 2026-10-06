@@ -22,6 +22,8 @@ func userMessage(err error) string {
 		return fmt.Sprintf("Missing permission (%s). Run: gchat-export auth login", termSafe(redact(scope.Detail)))
 	case errors.Is(err, chat.ErrAccessNotConfigured):
 		return "Chat API not enabled or app not allowed by your Workspace admin. See docs/setup.md#enable-the-api"
+	case errors.Is(err, chat.ErrBadChatURL):
+		return "Unrecognized Google Chat URL. Copy the link from chat.google.com, or use: gchat-export spaces --filter <text>"
 	case errors.Is(err, chat.ErrSpaceNotFound):
 		return "Space not found. Try: gchat-export spaces --filter <text>"
 	case errors.As(err, &amb):

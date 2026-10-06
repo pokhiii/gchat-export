@@ -14,6 +14,7 @@ var (
 	ErrUnauthenticated     = errors.New("not authenticated")
 	ErrAccessNotConfigured = errors.New("chat API not enabled or app not allowed")
 	ErrSpaceNotFound       = errors.New("space not found")
+	ErrBadChatURL          = errors.New("unrecognized Google Chat URL")
 )
 
 // ScopeError means the token lacks a required OAuth scope.
