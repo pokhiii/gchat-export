@@ -5,6 +5,7 @@ import (
 	"crypto/sha256"
 	"encoding/base64"
 	"encoding/json"
+	"io"
 	"net"
 	"net/http"
 	"net/http/httptest"
@@ -204,5 +205,41 @@ func TestLoadClientConfig(t *testing.T) {
 	os.WriteFile(web, []byte(`{"web":{"client_id":"cid","client_secret":"cs","auth_uri":"a","token_uri":"b"}}`), 0o600)
 	if _, err := LoadClientConfig(web); err == nil {
 		t.Fatal("web client accepted")
+	}
+}
+
+// The browser must always receive the confirmation page. Closing the server
+// as soon as the code arrives used to drop the response mid-write, and the
+// browser's automatic retry then hit a closed port ("refused to connect").
+func TestLoginCallbackPageAlwaysDelivered(t *testing.T) {
+	ts := newFakeTokenServer(t)
+	for i := 0; i < 200; i++ {
+		got := make(chan string, 1)
+		// Like a real browser, the callback runs independently of openBrowser.
+		_, err := Login(context.Background(), testConfig(ts.URL), func(u string) error {
+			go func() {
+				pu, _ := url.Parse(u)
+				q := url.Values{"state": {stateOf(u)}, "code": {"c"}}
+				resp, err := http.Get(pu.Query().Get("redirect_uri") + "?" + q.Encode())
+				if err != nil {
+					got <- "request failed: " + err.Error()
+					return
+				}
+				defer resp.Body.Close()
+				body, err := io.ReadAll(resp.Body)
+				if err != nil {
+					got <- "read failed: " + err.Error()
+					return
+				}
+				got <- string(body)
+			}()
+			return nil
+		}, 5*time.Second)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if body := <-got; body != callbackPage {
+			t.Fatalf("iteration %d: page not delivered: %q", i, body)
+		}
 	}
 }

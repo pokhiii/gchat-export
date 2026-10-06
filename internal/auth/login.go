@@ -11,6 +11,7 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"sync/atomic"
 	"time"
 
 	"golang.org/x/oauth2"
@@ -42,6 +43,8 @@ func LoadClientConfig(path string) (*oauth2.Config, error) {
 	return google.ConfigFromJSON(data, Scopes...)
 }
 
+const shutdownGrace = 2 * time.Second
+
 const callbackPage = "Login complete. You can close this tab and return to the terminal.\n"
 
 // Login runs the OAuth installed-app flow with PKCE on a loopback listener
@@ -71,6 +74,7 @@ func Login(ctx context.Context, cfg *oauth2.Config, openBrowser func(url string)
 		err  error
 	}
 	results := make(chan result, 1)
+	var handled atomic.Bool
 	mux := http.NewServeMux()
 	mux.HandleFunc("/callback", func(w http.ResponseWriter, r *http.Request) {
 		q := r.URL.Query()
@@ -84,17 +88,29 @@ func Login(ctx context.Context, cfg *oauth2.Config, openBrowser func(url string)
 		} else if res.code == "" {
 			res = result{err: errors.New("authorization failed: no code returned")}
 		}
-		select {
-		case results <- res:
-			w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-			_, _ = w.Write([]byte(callbackPage))
-		default:
+		if !handled.CompareAndSwap(false, true) {
 			http.Error(w, "already handled", http.StatusConflict)
+			return
 		}
+		// Deliver the page before handing over the code, so shutting the
+		// server down can never cut the browser's response short.
+		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+		_, _ = w.Write([]byte(callbackPage))
+		if f, ok := w.(http.Flusher); ok {
+			f.Flush()
+		}
+		results <- res
 	})
 	srv := &http.Server{Handler: mux, ReadHeaderTimeout: 5 * time.Second}
 	go func() { _ = srv.Serve(ln) }()
-	defer func() { _ = srv.Close() }()
+	// Graceful: lets the in-flight callback response finish before the port
+	// closes; otherwise the browser retries and shows "refused to connect".
+	shutdown := func() {
+		sctx, cancel := context.WithTimeout(context.Background(), shutdownGrace)
+		defer cancel()
+		_ = srv.Shutdown(sctx)
+	}
+	defer shutdown()
 
 	authURL := c.AuthCodeURL(state,
 		oauth2.AccessTypeOffline,
@@ -111,7 +127,7 @@ func Login(ctx context.Context, cfg *oauth2.Config, openBrowser func(url string)
 		if res.err != nil {
 			return nil, res.err
 		}
-		_ = srv.Close() // stop accepting callbacks before the exchange
+		shutdown() // stop accepting callbacks before the exchange
 		return c.Exchange(ctx, res.code, oauth2.VerifierOption(verifier))
 	}
 }
