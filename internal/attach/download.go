@@ -90,7 +90,7 @@ func (d *Downloader) download(ctx context.Context, resource, rel string) (string
 		copyErr = closeErr
 	}
 	if copyErr != nil {
-		fsutil.RemoveRegular(d.Root, osRel)
+		_ = fsutil.RemoveRegular(d.Root, osRel) // best-effort cleanup of a partial file
 		return "", 0, copyErr
 	}
 	return hex.EncodeToString(h.Sum(nil)), n, nil

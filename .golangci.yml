@@ -1,0 +1,29 @@
+version: "2"
+linters:
+  default: standard
+  enable:
+    - bodyclose
+    - errorlint
+    - gosec
+    - misspell
+    - noctx
+    - unconvert
+  settings:
+    errcheck:
+      exclude-functions:
+        - fmt.Fprintf
+        - fmt.Fprintln
+  exclusions:
+    rules:
+      # Deferred Close on read paths and best-effort cleanup; write paths check
+      # Close/Sync explicitly.
+      - linters: [errcheck]
+        text: "Error return value of `.*\\.Close` is not checked"
+      # openBrowser starts a short-lived OS opener that must outlive the command.
+      - path: internal/cli/browser\.go
+        linters: [noctx]
+      - path: _test\.go
+        linters: [errcheck, gosec, noctx, bodyclose]
+formatters:
+  enable:
+    - gofmt

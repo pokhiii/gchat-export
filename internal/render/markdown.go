@@ -50,7 +50,7 @@ func RenderMarkdown(w io.Writer, h Header, msgs []model.Message) error {
 			if i > 0 {
 				prefix = "> "
 			}
-			bw.WriteString("\n")
+			_, _ = bw.WriteString("\n") // errors surface at Flush
 			writeMessage(bw, m, prefix, i == 0 && m.IsThreadReply, loc)
 		}
 	}
@@ -121,7 +121,7 @@ func writeMessage(w *bufio.Writer, m model.Message, prefix string, orphan bool, 
 		lines = lines[:len(lines)-1]
 	}
 	for _, l := range lines {
-		w.WriteString(strings.TrimRight(prefix+l, " ") + trailingBreak(l) + "\n")
+		_, _ = w.WriteString(strings.TrimRight(prefix+l, " ") + trailingBreak(l) + "\n") // errors surface at Flush
 	}
 }
 

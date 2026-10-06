@@ -3,3 +3,6 @@ token*.json
 export/
 .state.json
 /dist/
+/gchat-export
+/gchat-export.exe
+credential.json

@@ -10,7 +10,7 @@ import (
 	"github.com/OWNER/gchat-export/internal/fsutil"
 )
 
-const credentialFile = "credential.json"
+const credentialFile = "credential.json" // #nosec G101 -- a file name, not a credential
 
 type fileStore struct{ dir string }
 
@@ -26,7 +26,7 @@ func (s fileStore) Load() (*Credential, error) {
 		}
 		return nil, err
 	}
-	b, err := os.ReadFile(path)
+	b, err := os.ReadFile(path) // #nosec G304 -- path is the tool's own config dir
 	if err != nil {
 		return nil, err
 	}

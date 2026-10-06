@@ -73,8 +73,8 @@ func (t *transport) RoundTrip(req *http.Request) (*http.Response, error) {
 			delay = backoff(attempt, t.rand)
 		}
 		if resp != nil {
-			io.Copy(io.Discard, io.LimitReader(resp.Body, 1<<16))
-			resp.Body.Close()
+			_, _ = io.Copy(io.Discard, io.LimitReader(resp.Body, 1<<16))
+			_ = resp.Body.Close()
 		}
 		if err := t.sleep(ctx, delay); err != nil {
 			return nil, err

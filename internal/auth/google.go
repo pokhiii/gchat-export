@@ -16,6 +16,7 @@ type Endpoints struct {
 	Revoke    string
 }
 
+// #nosec G101 -- public Google endpoint URLs, not credentials
 var DefaultEndpoints = Endpoints{
 	TokenInfo: "https://oauth2.googleapis.com/tokeninfo",
 	Revoke:    "https://oauth2.googleapis.com/revoke",
@@ -67,7 +68,7 @@ func postForm(ctx context.Context, hc *http.Client, endpoint string, form url.Va
 		var e struct {
 			Error string `json:"error"`
 		}
-		json.Unmarshal(body, &e)
+		_ = json.Unmarshal(body, &e) // best effort: only used for the message
 		return nil, fmt.Errorf("HTTP %d %s", resp.StatusCode, sanitizeParam(e.Error))
 	}
 	return body, nil

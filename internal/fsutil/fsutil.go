@@ -27,7 +27,7 @@ func MkdirPrivate(path string) error {
 	if err := os.MkdirAll(path, 0o700); err != nil {
 		return err
 	}
-	return os.Chmod(path, 0o700)
+	return os.Chmod(path, 0o700) // #nosec G302 -- directories need the execute bit; 0700 is owner-only
 }
 
 // CheckPrivate reports ErrInsecurePerms if path is accessible by group or
@@ -99,8 +99,8 @@ func WriteFileAtomic(root, rel string, data []byte) error {
 	}
 	tmpName := tmp.Name()
 	cleanup := func(e error) error {
-		tmp.Close()
-		os.Remove(tmpName)
+		_ = tmp.Close()
+		_ = os.Remove(tmpName)
 		return e
 	}
 	if err := tmp.Chmod(0o600); err != nil && runtime.GOOS != "windows" {
@@ -113,11 +113,11 @@ func WriteFileAtomic(root, rel string, data []byte) error {
 		return cleanup(err)
 	}
 	if err := tmp.Close(); err != nil {
-		os.Remove(tmpName)
+		_ = os.Remove(tmpName)
 		return err
 	}
 	if err := os.Rename(tmpName, full); err != nil {
-		os.Remove(tmpName)
+		_ = os.Remove(tmpName)
 		return err
 	}
 	return nil

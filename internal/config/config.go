@@ -44,7 +44,7 @@ func DefaultPath() (string, error) {
 // environment variables from getenv.
 func Load(path string, getenv func(string) string) (Config, error) {
 	c := Config{OutDir: "./export", RPS: 10}
-	b, err := os.ReadFile(path)
+	b, err := os.ReadFile(path) // #nosec G304 -- user-chosen config path
 	switch {
 	case errors.Is(err, fs.ErrNotExist):
 	case err != nil:

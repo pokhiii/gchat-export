@@ -28,7 +28,7 @@ var Scopes = []string{
 
 // LoadClientConfig reads a Desktop ("installed") OAuth client JSON file.
 func LoadClientConfig(path string) (*oauth2.Config, error) {
-	data, err := os.ReadFile(path)
+	data, err := os.ReadFile(path) // #nosec G304 -- user-chosen OAuth client file
 	if err != nil {
 		return nil, fmt.Errorf("reading OAuth client file: %w", err)
 	}
@@ -51,7 +51,8 @@ func Login(ctx context.Context, cfg *oauth2.Config, openBrowser func(url string)
 	ctx, cancel := context.WithTimeout(ctx, timeout)
 	defer cancel()
 
-	ln, err := net.Listen("tcp", "127.0.0.1:0")
+	var lc net.ListenConfig
+	ln, err := lc.Listen(ctx, "tcp", "127.0.0.1:0")
 	if err != nil {
 		return nil, err
 	}
@@ -60,7 +61,7 @@ func Login(ctx context.Context, cfg *oauth2.Config, openBrowser func(url string)
 
 	state, err := randomState()
 	if err != nil {
-		ln.Close()
+		_ = ln.Close()
 		return nil, err
 	}
 	verifier := oauth2.GenerateVerifier()
@@ -86,14 +87,14 @@ func Login(ctx context.Context, cfg *oauth2.Config, openBrowser func(url string)
 		select {
 		case results <- res:
 			w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-			w.Write([]byte(callbackPage))
+			_, _ = w.Write([]byte(callbackPage))
 		default:
 			http.Error(w, "already handled", http.StatusConflict)
 		}
 	})
 	srv := &http.Server{Handler: mux, ReadHeaderTimeout: 5 * time.Second}
-	go srv.Serve(ln)
-	defer srv.Close()
+	go func() { _ = srv.Serve(ln) }()
+	defer func() { _ = srv.Close() }()
 
 	authURL := c.AuthCodeURL(state,
 		oauth2.AccessTypeOffline,
@@ -110,7 +111,7 @@ func Login(ctx context.Context, cfg *oauth2.Config, openBrowser func(url string)
 		if res.err != nil {
 			return nil, res.err
 		}
-		srv.Close()
+		_ = srv.Close() // stop accepting callbacks before the exchange
 		return c.Exchange(ctx, res.code, oauth2.VerifierOption(verifier))
 	}
 }

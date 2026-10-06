@@ -45,7 +45,8 @@ func TestRenderGroupsRepliesUnderRoot(t *testing.T) {
 	other := model.Message{ID: "spaces/AAA/messages/x", ThreadID: "spaces/AAA/threads/tx",
 		Time: ts("2026-09-03T03:50:00Z"), Sender: model.User{DisplayName: "Eve"}, Text: "interleaved"}
 	out := render(t, []model.Message{msgs[0], other, msgs[1]})
-	if !(strings.Index(out, "Kickoff") < strings.Index(out, "Thanks!") && strings.Index(out, "Thanks!") < strings.Index(out, "interleaved")) {
+	iRoot, iReply, iOther := strings.Index(out, "Kickoff"), strings.Index(out, "Thanks!"), strings.Index(out, "interleaved")
+	if iRoot >= iReply || iReply >= iOther {
 		t.Fatalf("reply not grouped under its root:\n%s", out)
 	}
 	if !strings.Contains(out, "> Thanks!") {
