@@ -1,6 +1,6 @@
 client_secret*.json
 token*.json
-export/
+/export/
 .state.json
 /dist/
 /gchat-export
