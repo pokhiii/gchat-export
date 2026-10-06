@@ -18,7 +18,7 @@ func TestSanitizeName(t *testing.T) {
 		"":                 "file",
 		"...":              "file",
 		"a\x00b\x1fc":      "abc",
-		"é.txt":      "é.txt",
+		"é.txt":           "é.txt",
 	}
 	for in, want := range cases {
 		if got := SanitizeName(in); got != want {

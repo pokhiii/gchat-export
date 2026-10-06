@@ -73,7 +73,7 @@ func TestRenderTimesInZone(t *testing.T) {
 
 func TestMaliciousAttachmentName(t *testing.T) {
 	m := model.Message{ID: "spaces/A/messages/m", ThreadID: "t", Time: ts("2026-09-03T03:32:11Z"),
-		Sender: model.User{DisplayName: "x"},
+		Sender:      model.User{DisplayName: "x"},
 		Attachments: []model.Attachment{{Name: "](javascript:alert(1))", Source: model.SourceUploaded, Path: "attachments/m_0_x"}}}
 	out := render(t, []model.Message{m})
 	if strings.Contains(out, "](javascript") {
@@ -83,7 +83,7 @@ func TestMaliciousAttachmentName(t *testing.T) {
 
 func TestUnsafeLinkRenderedAsText(t *testing.T) {
 	m := model.Message{ID: "spaces/A/messages/m", ThreadID: "t", Time: ts("2026-09-03T03:32:11Z"),
-		Sender: model.User{DisplayName: "x"},
+		Sender:      model.User{DisplayName: "x"},
 		Attachments: []model.Attachment{{Name: "evil", Source: model.SourceDrive, DriveURL: "javascript:alert(1)"}}}
 	out := render(t, []model.Message{m})
 	if strings.Contains(out, "(javascript:") || strings.Contains(out, "<javascript:") {

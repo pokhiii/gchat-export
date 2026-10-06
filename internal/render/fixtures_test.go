@@ -29,8 +29,8 @@ func fixtureMessages() []model.Message {
 		{
 			ID: "spaces/AAA/messages/m1", ThreadID: "spaces/AAA/threads/t1",
 			Time: ts("2026-09-03T03:32:11Z"), EditedTime: tp("2026-09-03T03:40:00Z"),
-			Sender: model.User{ID: "users/1", DisplayName: "Jane Doe"},
-			Text:   "Kickoff notes — see attached 📎",
+			Sender:    model.User{ID: "users/1", DisplayName: "Jane Doe"},
+			Text:      "Kickoff notes — see attached 📎",
 			Reactions: []model.Reaction{{Emoji: "👍", Count: 3}, {Emoji: "🎉", Count: 1}},
 			Attachments: []model.Attachment{
 				{Name: "report.pdf", ContentType: "application/pdf", Source: model.SourceUploaded,
