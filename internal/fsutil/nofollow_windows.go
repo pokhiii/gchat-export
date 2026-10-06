@@ -13,5 +13,5 @@ func openNoFollow(path string, flag int) (*os.File, error) {
 	if fi, err := os.Lstat(path); err == nil && fi.Mode()&os.ModeSymlink != 0 {
 		return nil, fmt.Errorf("%s: refusing to follow symlink: %w", path, ErrNotRegular)
 	}
-	return os.OpenFile(path, flag, 0o600)
+	return os.OpenFile(path, flag, 0o600) // #nosec G304 -- callers check containment first
 }

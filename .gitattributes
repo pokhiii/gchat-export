@@ -1,0 +1,2 @@
+# Keep LF everywhere so golden files and scripts are byte-identical on Windows.
+* text=auto eol=lf

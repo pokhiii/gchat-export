@@ -31,14 +31,14 @@ func MkdirPrivate(path string) error {
 }
 
 // CheckPrivate reports ErrInsecurePerms if path is accessible by group or
-// others. It is a no-op on Windows.
+// others. On Windows it only checks that path exists.
 func CheckPrivate(path string) error {
-	if runtime.GOOS == "windows" {
-		return nil
-	}
 	fi, err := os.Stat(path)
 	if err != nil {
 		return err
+	}
+	if runtime.GOOS == "windows" {
+		return nil // Windows ACLs are not expressed in mode bits
 	}
 	if fi.Mode().Perm()&0o077 != 0 {
 		return fmt.Errorf("%s has mode %o: %w", path, fi.Mode().Perm(), ErrInsecurePerms)
@@ -56,7 +56,9 @@ func Contained(root, path string) error {
 }
 
 func resolve(root, rel string) (string, error) {
-	if filepath.IsAbs(rel) || filepath.VolumeName(rel) != "" {
+	// Reject absolute, volume-qualified and rooted ("\x" on Windows) paths on
+	// every OS so behavior does not depend on the platform.
+	if filepath.IsAbs(rel) || filepath.VolumeName(rel) != "" || strings.HasPrefix(rel, "/") || strings.HasPrefix(rel, `\`) {
 		return "", ErrEscapesRoot
 	}
 	full := filepath.Join(root, rel)

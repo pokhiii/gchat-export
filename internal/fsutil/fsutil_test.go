@@ -220,3 +220,23 @@ func TestOpenWriteRefusesSymlink(t *testing.T) {
 		t.Fatal("followed symlink")
 	}
 }
+
+func TestCheckPrivateMissingFile(t *testing.T) {
+	err := CheckPrivate(filepath.Join(t.TempDir(), "missing"))
+	if !errors.Is(err, os.ErrNotExist) {
+		t.Fatalf("err = %v, want ErrNotExist on every OS", err)
+	}
+}
+
+func TestCreateNewRefusesRootedPaths(t *testing.T) {
+	root := t.TempDir()
+	for _, rel := range []string{`\etc\x`, "/etc/x", `\\server\share\x`} {
+		f, err := CreateNew(root, rel)
+		if f != nil {
+			f.Close()
+		}
+		if !errors.Is(err, ErrEscapesRoot) {
+			t.Errorf("CreateNew(%q) err = %v, want ErrEscapesRoot", rel, err)
+		}
+	}
+}
